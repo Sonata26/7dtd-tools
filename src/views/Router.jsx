@@ -14,6 +14,7 @@ function Router() {
           <Route index element={<About />} />
           <Route path="xp" element={<XPCalculator />} />
           <Route path="perks" element={<PerkPlanner />} />
+          <Route path="*" element={<About />} />
         </Route>
       </Routes>
     </BrowserRouter>
