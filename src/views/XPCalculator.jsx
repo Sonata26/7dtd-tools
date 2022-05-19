@@ -7,22 +7,32 @@ import xpCalc from "util/xpCalc";
 import defaultConfigs from "util/defaultConfigs";
 
 export default function XPCalculator() {
-  const [levelRange, setLevelRange] = React.useState(null);
-  const [xpRequired, setXpRequired] = React.useState(0);
+  // load config TODO: configurator side panel
   const [config, setConfig] = React.useState({
-    levelOptions: defaultConfigs.levels,
+    levels: defaultConfigs.levels,
+    gameOptions: defaultConfigs.gameOptions,
+    materials: defaultConfigs.materials,
+    zombies: defaultConfigs.zombies,
   });
+  // level range from slider
+  const [levelRange, setLevelRange] = React.useState(null);
+  // data for charts
+  const [data, setData] = React.useState(null);
 
   // initial setup
   React.useEffect(() => {
     console.log("xp calculator intialized");
   }, []);
 
+  // update required data
   React.useEffect(() => {
     if (levelRange) {
-      setXpRequired(xpCalc.getXPRequired(...levelRange));
+      const xpReq = xpCalc.getXPRequired(levelRange);
+      const data = xpCalc.getAllData(levelRange, config);
+
+      setData(data);
     }
-  }, [levelRange, setXpRequired]);
+  }, [levelRange, setData]);
 
   const onLevelSliderChange = (levelRange) => {
     setLevelRange(levelRange);
@@ -37,11 +47,12 @@ export default function XPCalculator() {
       </Box>
       <LevelSlider
         callback={onLevelSliderChange}
-        levelOptions={config.levelOptions}
+        levelOptions={config.levels}
       />
       <Box>
         <Typography>
-          {levelRange ? xpCalc.howToLevel(...levelRange) : "loading"}
+          {/* {levelRange ? xpCalc.howToLevel(...levelRange) : "loading"} */}
+          Standby
         </Typography>
       </Box>
     </>

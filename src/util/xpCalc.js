@@ -2,8 +2,7 @@ import defaultConfigs from "./defaultConfigs";
 
 // XP algorithm from game files
 export function getXPRequired(
-  startLevel,
-  desiredLevel,
+  [startLevel, desiredLevel],
   xpMultiplier = defaultConfigs.gameOptions.xpMultiplier
 ) {
   return Math.ceil(
@@ -49,20 +48,39 @@ export function getQuestsRequired(xp) {
   return {};
 }
 
-// formatted string [deprecated]
-export function howToLevel(startLevel, desiredLevel) {
-  const xp = getXPRequired(startLevel, desiredLevel);
-  const zombieReq = getZombiesRequired(xp);
-  const blockReq = getBlocksRequired(xp);
+export function getAllData([startLevel, desiredLevel], options = {}) {
+  const config = {
+    ...defaultConfigs,
+    ...options,
+  };
+  const xpRequired = getXPRequired(
+    [startLevel, desiredLevel],
+    config.gameOptions.xpMultiplier
+  );
+  const zombiesReq = getZombiesRequired(xpRequired, config.zombies);
+  const blocksReq = getBlocksRequired(xpRequired, config.materials);
 
-  return `You need ${xp} exp to go from level ${startLevel} to level ${desiredLevel} which can be obtained
-  by killing around ${zombieReq} Zombies or upgrading ${blockReq.concrete} Cobblestone Blocks to Concrete.`;
+  return {
+    xpRequired,
+    zombiesReq,
+    blocksReq,
+  };
 }
+
+// formatted string [deprecated]
+// export function howToLevel([startLevel, desiredLevel]) {
+//   const xp = getXPRequired(startLevel, desiredLevel);
+//   const zombieReq = getZombiesRequired(xp);
+//   const blockReq = getBlocksRequired(xp);
+
+//   return `You need ${xp} exp to go from level ${startLevel} to level ${desiredLevel} which can be obtained
+//   by killing around ${zombieReq} Zombies or upgrading ${blockReq.concrete} Cobblestone Blocks to Concrete.`;
+// }
 
 export default {
   getXPRequired,
   getZombiesRequired,
   getBlocksRequired,
   getQuestsRequired,
-  howToLevel,
+  getAllData,
 };
