@@ -52,7 +52,7 @@ export default function XPCalculator() {
       <Box>
         <Typography>
           {/* {levelRange ? xpCalc.howToLevel(...levelRange) : "loading"} */}
-          Standby
+          {data ? JSON.stringify(data, null, 2) : "standby"}
         </Typography>
       </Box>
     </>

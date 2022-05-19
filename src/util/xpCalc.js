@@ -1,4 +1,5 @@
 import defaultConfigs from "./defaultConfigs";
+import { capitalize, flatten } from "lodash";
 
 // XP algorithm from game files
 export function getXPRequired(
@@ -23,6 +24,56 @@ export function getZombiesRequired(xp, zombiesConfig = {}) {
   return Math.ceil(xp / config.averageXP);
 }
 
+const getUpgradeXP = (
+  blockStats,
+  baseMaterialXP = defaultConfigs.baseMaterialXP
+) => {
+  return blockStats.xpModifier * blockStats.upgradeAmount * baseMaterialXP;
+};
+
+const getBlockPaths = (materialConfig) => {
+  const paths = {};
+  const blocks = Object.keys(materialConfig.blocks);
+
+  blocks.forEach((blockName) => {
+    const block = materialConfig.blocks[blockName];
+    const path = (paths[blockName] = [
+      {
+        name: blockName,
+        xp: getUpgradeXP(block, materialConfig.baseMaterialXP),
+        _block: block,
+      },
+    ]);
+    let nextBlockName = block.next;
+    let nextBlock = materialConfig.blocks[block.next];
+
+    while (nextBlock) {
+      path.push({
+        name: nextBlockName,
+        _block: nextBlock,
+        xp: getUpgradeXP(nextBlock, materialConfig.baseMaterialXP),
+      });
+      nextBlockName = nextBlock.next;
+      nextBlock = materialConfig.blocks[nextBlockName];
+    }
+
+    paths[blockName] = path.map((block, i) => {
+      const upgradeName =
+        i === 0
+          ? capitalize(blockName) + " Block"
+          : capitalize(blockName) + " to " + capitalize(block.name);
+
+      if (i === 0) return { upgradeName, xp: block.xp };
+
+      const totalXP = path.slice(0, i + 1).reduce((acc, b) => acc + b.xp, 0);
+
+      return { upgradeName, xp: totalXP };
+    });
+  });
+
+  return paths;
+};
+
 // How many blocks to upgrade
 export function getBlocksRequired(xpRequired, materialConfig = {}) {
   const config = {
@@ -30,17 +81,17 @@ export function getBlocksRequired(xpRequired, materialConfig = {}) {
     ...materialConfig,
   };
 
-  return Object.keys(config.blocks).reduce((acc, blockName) => {
-    const block = config.blocks[blockName];
+  const paths = getBlockPaths(config);
+  const blocksRequired = Object.entries(paths).map(([pathName, path]) => {
+    return path.map((upgrade) => {
+      return {
+        ...upgrade,
+        blocksRequired: Math.ceil(xpRequired / upgrade.xp),
+      };
+    });
+  });
 
-    return {
-      ...acc,
-      [blockName]: Math.ceil(
-        xpRequired /
-          (block.xpModifier * block.upgradeAmount * config.baseMaterialXP)
-      ),
-    };
-  }, {});
+  return flatten(blocksRequired);
 }
 
 // TODO: Quests
@@ -57,25 +108,15 @@ export function getAllData([startLevel, desiredLevel], options = {}) {
     [startLevel, desiredLevel],
     config.gameOptions.xpMultiplier
   );
-  const zombiesReq = getZombiesRequired(xpRequired, config.zombies);
-  const blocksReq = getBlocksRequired(xpRequired, config.materials);
+  const zombieReq = getZombiesRequired(xpRequired, config.zombies);
+  const blockReq = getBlocksRequired(xpRequired, config.materials);
 
   return {
     xpRequired,
-    zombiesReq,
-    blocksReq,
+    zombiesReq: zombieReq,
+    blocksReq: blockReq,
   };
 }
-
-// formatted string [deprecated]
-// export function howToLevel([startLevel, desiredLevel]) {
-//   const xp = getXPRequired(startLevel, desiredLevel);
-//   const zombieReq = getZombiesRequired(xp);
-//   const blockReq = getBlocksRequired(xp);
-
-//   return `You need ${xp} exp to go from level ${startLevel} to level ${desiredLevel} which can be obtained
-//   by killing around ${zombieReq} Zombies or upgrading ${blockReq.concrete} Cobblestone Blocks to Concrete.`;
-// }
 
 export default {
   getXPRequired,

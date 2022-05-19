@@ -15,11 +15,15 @@ export const gameOptions = {
 export const materials = {
   baseMaterialXP: 6,
   blocks: {
-    wood: { xpModifier: 2, upgradeAmount: 8, prev: null, next: "cobble" },
+    wood: {
+      xpModifier: 2,
+      upgradeAmount: 8,
+      next: "cobble",
+    },
     cobble: {
       xpModifier: 2,
       upgradeAmount: 10,
-      prev: "wood",
+      prev: "reinforcedWood",
       next: "concrete",
     },
     concrete: {
