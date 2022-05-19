@@ -1,15 +1,5 @@
-import React from "react";
-
+import React, { useEffect } from "react";
 import { Typography, Box, Slider, Grid, Input } from "@mui/material";
-
-const defaultOptions = {
-  minLevel: 1,
-  maxLevel: 300,
-  startingLevel: 1,
-  startingDesiredLevel: 10,
-  step: 1,
-  minLevelIncrease: 1,
-};
 
 const normalizeLevelRange = (levelRange, options) => {
   const newRange = [...levelRange];
@@ -26,57 +16,67 @@ const normalizeLevelRange = (levelRange, options) => {
     newRange[1] = options.minLevel + options.minLevelIncrease;
   }
 
-  if (newRange[0] > newRange[1]) {
+  if (newRange[0] >= newRange[1]) {
     newRange[0] = newRange[1] - options.minLevelIncrease;
   }
 
   return newRange;
 };
 
-export default function LevelSlider(props) {
-  const options = {
-    ...defaultOptions,
-    ...props.options,
-  };
+export default function LevelSlider({ levelOptions, callback = () => {} }) {
   const [levelRange, setLevelRange] = React.useState([
-    options.startingLevel,
-    options.startingDesiredLevel,
+    levelOptions.startingLevel,
+    levelOptions.startingDesiredLevel,
   ]);
+
+  // setup hook
+  useEffect(() => {
+    callback(levelRange);
+  }, []);
+
+  // send level range upstream
+  // useEffect(() => {
+  //   if (callback) {
+  //     callback(debouncedLevelRange);
+  //   }
+  // }, [debouncedLevelRange, callback]);
+
+  const onSliderCommited = () => {
+    callback(levelRange);
+  };
 
   const handleSliderChange = (evt, newValue, activeThumb) => {
     if (activeThumb === 0) {
-      setLevelRange([
-        Math.min(newValue[0], levelRange[1] - options.minLevelIncrease),
-        levelRange[1],
-      ]);
+      setLevelRange(
+        normalizeLevelRange([newValue[0], levelRange[1]], levelOptions)
+      );
     } else {
-      setLevelRange([
-        levelRange[0],
-        Math.max(newValue[1], levelRange[0] + options.minLevelIncrease),
-      ]);
+      setLevelRange(
+        normalizeLevelRange([levelRange[0], newValue[1]], levelOptions)
+      );
     }
   };
 
   const handleInputChange = (evt, levelIndex) => {
-    if (levelIndex === 0) {
-      setLevelRange(
-        normalizeLevelRange([+evt.target.value, levelRange[1]], options)
-      );
-    } else if (levelIndex === 1) {
-      setLevelRange(
-        normalizeLevelRange([levelRange[0], +evt.target.value], options)
-      );
-    }
+    const nextLevelRange =
+      levelIndex === 0
+        ? normalizeLevelRange([+evt.target.value, levelRange[1]], levelOptions)
+        : normalizeLevelRange([levelRange[0], +evt.target.value], levelOptions);
+
+    setLevelRange(nextLevelRange);
+    callback(nextLevelRange);
   };
 
   const handleBlur = () => {
-    setLevelRange(normalizeLevelRange(levelRange, options));
+    setLevelRange(normalizeLevelRange(levelRange, levelOptions));
   };
 
   return (
     <>
       <Box>
-        <Typography id="input-slider">Level</Typography>
+        <Typography id="input-slider" textAlign="center">
+          Level
+        </Typography>
         <Grid
           container
           spacing={2}
@@ -92,9 +92,9 @@ export default function LevelSlider(props) {
               }}
               onBlur={handleBlur}
               inputProps={{
-                step: options.step,
-                min: options.minLevel,
-                max: options.maxLevel - 1,
+                step: levelOptions.step,
+                min: levelOptions.minLevel,
+                max: levelOptions.maxLevel - 1,
                 type: "number",
               }}
             />
@@ -102,15 +102,16 @@ export default function LevelSlider(props) {
           <Grid item xs={8}>
             <Slider
               defaultValue={1}
-              step={options.step}
-              min={options.minLevel}
-              max={options.maxLevel}
+              step={levelOptions.step}
+              min={levelOptions.minLevel}
+              max={levelOptions.maxLevel}
               value={levelRange}
               onChange={handleSliderChange}
+              onChangeCommitted={onSliderCommited}
               marks
               valueLabelDisplay="on"
               disableSwap
-              size="medium"
+              // size="medium"
             />
           </Grid>
           <Grid item xs={1}>
@@ -122,9 +123,9 @@ export default function LevelSlider(props) {
               }}
               onBlur={handleBlur}
               inputProps={{
-                step: options.step,
-                min: options.minLevel + 1,
-                max: options.maxLevel,
+                step: levelOptions.step,
+                min: levelOptions.minLevel + 1,
+                max: levelOptions.maxLevel,
                 type: "number",
               }}
             />
