@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import App from "../App";
 import About from "./About";
@@ -8,7 +8,8 @@ import XPCalculator from "./XPCalculator";
 
 function Router() {
   return (
-    <BrowserRouter basename={process.env.REACT_APP_ROUTER_BASE || "/"}>
+    //  basename={process.env.REACT_APP_ROUTER_BASE || "/"}
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<About />} />
@@ -17,7 +18,7 @@ function Router() {
           <Route path="*" element={<About />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
