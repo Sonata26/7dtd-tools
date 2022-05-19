@@ -8,7 +8,7 @@ import XPCalculator from "./XPCalculator";
 
 function Router() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.REACT_APP_ROUTER_BASE || "/"}>
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<About />} />
