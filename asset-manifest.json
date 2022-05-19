@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.css": "/7dtd-tools/static/css/main.31d6cfe0.css",
+    "main.js": "/7dtd-tools/static/js/main.6ed3ca76.js",
+    "index.html": "/7dtd-tools/index.html",
+    "main.6ed3ca76.js.map": "/7dtd-tools/static/js/main.6ed3ca76.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.31d6cfe0.css",
+    "static/js/main.6ed3ca76.js"
+  ]
+}
