@@ -1,16 +1,31 @@
 import defaultConfigs from "./defaultConfigs";
 import { capitalize, flatten } from "lodash";
 
-// XP algorithm from game files
-export function getXPRequired(
-  [startLevel, desiredLevel],
-  xpMultiplier = defaultConfigs.gameOptions.xpMultiplier
-) {
-  return Math.ceil(
-    (-220480 *
-      (Math.pow(1.05, startLevel - 1) - Math.pow(1.05, desiredLevel - 1))) /
-      xpMultiplier
+function xpFormulaBeforeClamp(startLevel, desiredLevel) {
+  return Math.trunc(
+    -220480 *
+      (Math.pow(1.05, startLevel - 1) - Math.pow(1.05, desiredLevel - 1))
   );
+}
+
+// XP algorithm from game files
+export function getXPRequired([startLevel, desiredLevel], gameOptions = {}) {
+  const config = {
+    ...defaultConfigs.gameOptions,
+    ...gameOptions,
+  };
+  const { xpMultiplier, xpClampLevel, xpClampAmount } = config;
+
+  if (startLevel >= xpClampLevel) {
+    return (desiredLevel - startLevel) * xpClampAmount;
+  }
+  if (desiredLevel > xpClampLevel && startLevel < xpClampLevel) {
+    const xpForStartToClamp = xpFormulaBeforeClamp(startLevel, xpClampLevel);
+
+    return xpForStartToClamp + (desiredLevel - xpClampLevel) * xpClampAmount;
+  }
+
+  return xpFormulaBeforeClamp(startLevel, desiredLevel);
 }
 
 // Zombies
@@ -106,7 +121,7 @@ export function getAllData([startLevel, desiredLevel], options = {}) {
   };
   const xpRequired = getXPRequired(
     [startLevel, desiredLevel],
-    config.gameOptions.xpMultiplier
+    config.gameOptions
   );
   const zombieReq = getZombiesRequired(xpRequired, config.zombies);
   const blockReq = getBlocksRequired(xpRequired, config.materials);

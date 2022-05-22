@@ -1,3 +1,4 @@
+// slider options
 export const levels = {
   minLevel: 1,
   maxLevel: 300,
@@ -8,7 +9,9 @@ export const levels = {
 };
 
 export const gameOptions = {
-  xpMultiplier: 1,
+  xpMultiplier: 1.05,
+  xpClampLevel: 60, // defined in progression.xml after this level it starts clamping
+  xpClampAmount: 186791, // the max xp required per level after clamp
 };
 
 // xpModifier * baseMaterialXP * resourceAmount = xp per block
