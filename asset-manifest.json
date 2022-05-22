@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/7dtd-tools/static/css/main.31d6cfe0.css",
-    "main.js": "/7dtd-tools/static/js/main.d9860245.js",
+    "main.js": "/7dtd-tools/static/js/main.2cdd2fab.js",
     "index.html": "/7dtd-tools/index.html",
-    "main.d9860245.js.map": "/7dtd-tools/static/js/main.d9860245.js.map"
+    "main.2cdd2fab.js.map": "/7dtd-tools/static/js/main.2cdd2fab.js.map"
   },
   "entrypoints": [
     "static/css/main.31d6cfe0.css",
-    "static/js/main.d9860245.js"
+    "static/js/main.2cdd2fab.js"
   ]
 }
